@@ -2,30 +2,35 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>AR Floor-Pinned Model</title>
+  <title>AR Floor-Pinned Model with Sound</title>
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
   <script src="https://cdn.rawgit.com/AR-js-org/AR.js/3.3.2/aframe/build/aframe-ar.js"></script>
 </head>
 <body style="margin: 0; overflow: hidden;">
   
-  <a-scene embedded arjs="debugUIEnabled: false;">
+  <a-scene embedded arjs="debugUIEnabled: false;" 
+            vr-mode-ui="enabled: false" 
+            gps-camera="gpsMinDistance: 10; gpsMaxDistance: 5000;">
     
-    <!-- Marker-Based Tracking (Ensures the Model Stays in One Place) -->
-    <a-marker type="pattern" url="assets/saw.patt">
-      
-      <!-- 3D Model Pinned to the Ground -->
-      <a-entity 
-        id="modelEntity"
-        gltf-model="./assets/saw.glb"
-        position="0 0 0"   <!-- Adjust Y value if needed -->
-        scale="1 1 1"
-        rotation="0 180 0">
-      </a-entity>
+    <!-- Location-Based AR: GPS-Entity-Place for 3D Model -->
+    <a-entity 
+      id="modelEntity"
+      gltf-model="./assets/saw.glb"
+      gps-entity-place="latitude: 37.981102; longitude: -23.756874; altitude: 0;" 
+      scale="1 1 1"
+      rotation="0 180 0">
+    </a-entity>
 
-    </a-marker>
+    <!-- GPS Camera that moves with the user -->
+    <a-camera gps-camera rotation-reader></a-camera>
 
-    <!-- Camera (Moves with the User) -->
-    <a-camera position="0 1.6 0"></a-camera>
+    <!-- Sound that plays automatically and loops -->
+    <a-sound 
+      src="url(./assets/sound.wav)" 
+      autoplay="true" 
+      loop="true" 
+      position="0 1.6 -2">
+    </a-sound>
 
   </a-scene>
 
