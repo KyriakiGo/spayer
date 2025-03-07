@@ -10,13 +10,14 @@
 <body style="margin: 0; overflow: hidden;">
   <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
     
-    <!-- 3D Model -->
+    <!-- 3D Model with Gesture Controls -->
     <a-entity 
       id="modelEntity"
       gltf-model="./assets/saw.glb" 
       position="0 0 -5" 
       scale="1 1 1" 
-      rotation="0 0 0">
+      rotation="0 0 0"
+      gesture-handler>
     </a-entity>
 
     <!-- Sound -->
@@ -27,12 +28,8 @@
       position="0 1 -5">
     </a-sound>
 
-    <!-- Camera with Orbit Controls -->
-    <a-camera 
-      position="0 0 0"
-      orbit-controls="target: #modelEntity; enableDamping: true; dampingFactor: 0.1; rotateSpeed: 0.3; zoomSpeed: 0.5; minDistance: 2; maxDistance: 10;"
-      look-controls="enabled: false">
-    </a-camera>
+    <!-- Camera -->
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
   </a-scene>
 
@@ -53,6 +50,66 @@
       let maxDim = Math.max(size.x, size.y, size.z);
       let scaleFactor = 1.5 / maxDim; // Adjusts model to a reasonable size
       model.scale.set(scaleFactor, scaleFactor, scaleFactor);
+    });
+
+    // Gesture Controls for Mobile (Zoom + Rotate)
+    AFRAME.registerComponent('gesture-handler', {
+      init: function () {
+        let el = this.el;
+        let pinchStartDistance = null;
+        let initialScale = el.getAttribute('scale');
+        let isDragging = false;
+        let lastX = 0, lastY = 0;
+
+        // Handle Touch Start
+        document.addEventListener('touchstart', (event) => {
+          if (event.touches.length === 2) {
+            pinchStartDistance = getDistance(event.touches);
+            initialScale = el.getAttribute('scale');
+          } else if (event.touches.length === 1) {
+            isDragging = true;
+            lastX = event.touches[0].clientX;
+            lastY = event.touches[0].clientY;
+          }
+        });
+
+        // Handle Touch Move (Pinch to Zoom + Drag to Rotate)
+        document.addEventListener('touchmove', (event) => {
+          if (event.touches.length === 2 && pinchStartDistance) {
+            let newDistance = getDistance(event.touches);
+            let scaleFactor = newDistance / pinchStartDistance;
+            el.setAttribute('scale', {
+              x: initialScale.x * scaleFactor,
+              y: initialScale.y * scaleFactor,
+              z: initialScale.z * scaleFactor
+            });
+          } else if (event.touches.length === 1 && isDragging) {
+            let deltaX = event.touches[0].clientX - lastX;
+            let deltaY = event.touches[0].clientY - lastY;
+            let rotation = el.getAttribute('rotation');
+            el.setAttribute('rotation', {
+              x: rotation.x - deltaY * 0.5,
+              y: rotation.y + deltaX * 0.5,
+              z: rotation.z
+            });
+            lastX = event.touches[0].clientX;
+            lastY = event.touches[0].clientY;
+          }
+        });
+
+        // Handle Touch End
+        document.addEventListener('touchend', () => {
+          isDragging = false;
+          pinchStartDistance = null;
+        });
+
+        // Function to Calculate Distance Between Two Touch Points (For Pinch Gesture)
+        function getDistance(touches) {
+          let dx = touches[0].clientX - touches[1].clientX;
+          let dy = touches[0].clientY - touches[1].clientY;
+          return Math.sqrt(dx * dx + dy * dy);
+        }
+      }
     });
   </script>
 </body>
