@@ -7,20 +7,27 @@
   <script src="https://cdn.rawgit.com/AR-js-org/AR.js/3.3.2/aframe/build/aframe-ar.js"></script>
 </head>
 <body style="margin: 0; overflow: hidden;">
-  <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
+  
+  <a-scene embedded arjs="debugUIEnabled: false;">
     
-    <!-- 3D Model Pinned to Floor -->
-    <a-entity 
-      id="modelEntity"
-      gltf-model="./assets/saw.glb"
-      position="0 0 -3"  <!-- Adjust Y if the model is floating or sinking -->
-      scale="1 1 1"
-      rotation="0 180 0">
-    </a-entity>
+    <!-- Marker-Based Tracking (Ensures the Model Stays in One Place) -->
+    <a-marker type="pattern" url="assets/marker.patt">
+      
+      <!-- 3D Model Pinned to the Ground -->
+      <a-entity 
+        id="modelEntity"
+        gltf-model="./assets/saw.glb"
+        position="0 0 0"   <!-- Adjust Y value if needed -->
+        scale="1 1 1"
+        rotation="0 180 0">
+      </a-entity>
 
-    <!-- Camera (Moves With User) -->
-    <a-camera position="0 1.6 0"></a-camera> <!-- Simulates human eye level -->
+    </a-marker>
+
+    <!-- Camera (Moves with the User) -->
+    <a-camera position="0 1.6 0"></a-camera>
 
   </a-scene>
+
 </body>
 </html>
